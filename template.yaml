@@ -10,7 +10,7 @@ Resources:
   ButtonsFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      CodeUri: hello_world/
+      CodeUri: buttons/
       Handler: app.lambda_handler
       Runtime: python3.10
       Architectures:
@@ -26,7 +26,7 @@ Resources:
   SettingsFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      CodeUri: hello_world/
+      CodeUri: settings/
       Handler: app.lambda_handler
       Runtime: python3.10
       Architectures:
