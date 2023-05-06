@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Transform: 'AWS::Serverless-2016-10-31'
+Transform: "AWS::Serverless-2016-10-31"
 Description: |
   dogbutton-backend
   Sample SAM Template for dogbutton-backend
@@ -7,8 +7,8 @@ Globals:
   Function:
     Timeout: 3
 Resources:
-  ButtonsFunction:
-    Type: 'AWS::Serverless::Function'
+  ButtonsFunctionGET:
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: buttons/
       Handler: app.lambda_handler
@@ -23,8 +23,25 @@ Resources:
             Method: get
     DependsOn:
       - ButtonDataBase
-  SettingsFunction:
-    Type: 'AWS::Serverless::Function'
+  ButtonsFunctionPOST:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      CodeUri: buttons/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /buttons
+            Method: post
+    DependsOn:
+      - ButtonDataBase
+
+  SettingsFunctionGET:
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: settings/
       Handler: app.lambda_handler
@@ -39,18 +56,59 @@ Resources:
             Method: get
     DependsOn:
       - SettingsDataBase
+
+  SettingsFunctionPOST:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      CodeUri: settings/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /settings
+            Method: post
+    DependsOn:
+      - SettingsDataBase
+  PingFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      CodeUri: ping/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /ping
+            Method: get
+    DependsOn:
+      - SettingsDataBase
   ButtonDataBase:
-    Type: 'AWS::DynamoDB::Table'
+    Type: "AWS::DynamoDB::Table"
     Properties:
       KeySchema:
         - AttributeName: test
           KeyType: test
   SettingsDataBase:
-    Type: 'AWS::DynamoDB::Table'
+    Type: "AWS::DynamoDB::Table"
     Properties:
       KeySchema:
         - AttributeName: test
           KeyType: test
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      GroupName: 
+      UserPoolId: 
+      Username: 
+
+
 Outputs:
   HelloWorldApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
