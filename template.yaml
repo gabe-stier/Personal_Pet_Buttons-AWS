@@ -89,26 +89,32 @@ Resources:
             Method: get
     DependsOn:
       - SettingsDataBase
+  ButtonLogDataBase:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      KeySchema:
+        - AttributeName: buttonLogID
+          KeyType: int
+        - AttributeName: buttonLogTime
+          KeyType: string
+        - AttributeName: buttonID
+          KeyType: uuid
   ButtonDataBase:
-    Type: "AWS::DynamoDB::Table"
+    Type: 'AWS::DynamoDB::Table'
     Properties:
       KeySchema:
-        - AttributeName: test
-          KeyType: test
+        - AttributeName: buttonID
+          KeyType: uuid
+        - AttributeName: buttonName
+          KeyType: string
   SettingsDataBase:
-    Type: "AWS::DynamoDB::Table"
+    Type: 'AWS::DynamoDB::Table'
     Properties:
       KeySchema:
-        - AttributeName: test
-          KeyType: test
-  UserPool:
-    Type: AWS::Cognito::UserPool
-    Properties:
-      GroupName: 
-      UserPoolId: 
-      Username: 
-
-
+        - AttributeName: settingName
+          KeyType: string
+        - AttributeName: settingValue
+          KeyType: string
 Outputs:
   HelloWorldApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
