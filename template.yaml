@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Transform: 'AWS::Serverless-2016-10-31'
+Transform: "AWS::Serverless-2016-10-31"
 Description: |
   dogbutton-backend
   Sample SAM Template for dogbutton-backend
@@ -8,7 +8,7 @@ Globals:
     Timeout: 3
 Resources:
   ButtonsFunctionGET:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: buttons/
       Handler: app.lambda_handler
@@ -21,14 +21,19 @@ Resources:
           Properties:
             Path: /buttons
             Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+          TableName: !Ref ButtonsTable
+        - DynamoDBCrudPolicy:
+          TableName: !Ref ButtonLogs
     Metadata:
-      'AWS::CloudFormation::Designer':
+      "AWS::CloudFormation::Designer":
         id: de66c920-405d-436d-a49c-138dbaed0328
     DependsOn:
       - ButtonsTable
       - ButtonLogs
   ButtonsFunctionPOST:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: buttons/
       Handler: app.lambda_handler
@@ -41,14 +46,20 @@ Resources:
           Properties:
             Path: /buttons
             Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+          TableName: !Ref ButtonsTable
+        - DynamoDBCrudPolicy:
+          TableName: !Ref ButtonLogs
+
     Metadata:
-      'AWS::CloudFormation::Designer':
+      "AWS::CloudFormation::Designer":
         id: ae8d7107-07ae-4df9-beaf-5573f3bac602
     DependsOn:
       - ButtonsTable
       - ButtonLogs
   SettingsFunctionGET:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: settings/
       Handler: app.lambda_handler
@@ -61,13 +72,16 @@ Resources:
           Properties:
             Path: /settings
             Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+          TableName: !Ref SettingsTable
     Metadata:
-      'AWS::CloudFormation::Designer':
+      "AWS::CloudFormation::Designer":
         id: 3b6bb2a6-66a7-431d-a4cc-2d69a544444b
     DependsOn:
       - SettingsTable
   SettingsFunctionPOST:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: settings/
       Handler: app.lambda_handler
@@ -80,13 +94,16 @@ Resources:
           Properties:
             Path: /settings
             Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+          TableName: !Ref SettingsTable
     Metadata:
-      'AWS::CloudFormation::Designer':
+      "AWS::CloudFormation::Designer":
         id: 21ea3b94-f41d-4e3e-91c0-4aedc3e04cbd
     DependsOn:
       - SettingsTable
   PingFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: ping/
       Handler: app.lambda_handler
@@ -99,69 +116,58 @@ Resources:
           Properties:
             Path: /ping
             Method: get
+      Policies:
+        - DynamoDBCrudPolicy:
+          TableName: !Ref SettingsTable
     Metadata:
-      'AWS::CloudFormation::Designer':
+      "AWS::CloudFormation::Designer":
         id: 1c10dc11-0a37-4cc4-94a0-e60b0ac05e3b
     DependsOn:
       - SettingsTable
+
   SettingsTable:
-    Type: 'AWS::DynamoDB::Table'
+    Type: "AWS::DynamoDB::Table"
     Properties:
       TableName: SettingsTable
       AttributeDefinitions:
         - AttributeName: ID
           AttributeType: S
-        - AttributeName: VALUE
-          AttributeType: S
       KeySchema:
         - AttributeName: ID
           KeyType: HASH
-        - AttributeName: VALUE
-          KeyType: HASH
       BillingMode: PAY_PER_REQUEST
     Metadata:
-      'AWS::CloudFormation::Designer':
+      "AWS::CloudFormation::Designer":
         id: 3e5b4ea4-35c7-423b-a644-3ba222159d20
   ButtonsTable:
-    Type: 'AWS::DynamoDB::Table'
-    Properties: 
+    Type: "AWS::DynamoDB::Table"
+    Properties:
       TableName: ButtonsTable
       AttributeDefinitions:
         - AttributeName: ID
           AttributeType: S
-        - AttributeName: Name
-          AttributeType: S
       KeySchema:
         - AttributeName: ID
           KeyType: HASH
-        - AttributeName: Name
-          KeyType: HASH
       BillingMode: PAY_PER_REQUEST
     Metadata:
-      'AWS::CloudFormation::Designer':
+      "AWS::CloudFormation::Designer":
         id: 81d63279-08b6-410a-81f1-2fe3ed565dfb
   ButtonLogs:
-    Type: 'AWS::DynamoDB::Table'
-    Properties: 
+    Type: "AWS::DynamoDB::Table"
+    Properties:
       TableName: ButtonLogs
       AttributeDefinitions:
         - AttributeName: ID
           AttributeType: S
-        - AttributeName: ButtonID
-          AttributeType: N
-        - AttributeName: PressTime
-          AttributeType: S
       KeySchema:
         - AttributeName: ID
           KeyType: HASH
-        - AttributeName: ButtonID
-          KeyType: HASH
-        - AttributeName: PressTime
-          KeyType: HASH
       BillingMode: PAY_PER_REQUEST
     Metadata:
-      'AWS::CloudFormation::Designer':
+      "AWS::CloudFormation::Designer":
         id: 3906230f-e4f6-48e5-af49-61da9f9f3aa9
+
 Outputs:
   HelloWorldApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
@@ -174,14 +180,14 @@ Outputs:
     Description: Implicit IAM Role created for Hello World function
     Value: !GetAtt ButtonsFunctionGETRole.Arn
 Metadata:
-  'AWS::CloudFormation::Designer':
+  "AWS::CloudFormation::Designer":
     1c10dc11-0a37-4cc4-94a0-e60b0ac05e3b:
       size:
         width: 60
         height: 60
       position:
         x: 60
-        'y': 90
+        "y": 90
       z: 1
       embeds: []
       dependson:
@@ -192,7 +198,7 @@ Metadata:
         height: 60
       position:
         x: -50
-        'y': 90
+        "y": 90
       z: 1
       embeds: []
       dependson:
@@ -203,7 +209,7 @@ Metadata:
         height: 60
       position:
         x: -50
-        'y': 180
+        "y": 180
       z: 1
       embeds: []
       dependson:
@@ -214,7 +220,7 @@ Metadata:
         height: 60
       position:
         x: 170
-        'y': 90
+        "y": 90
       z: 1
       embeds: []
       dependson:
@@ -226,7 +232,7 @@ Metadata:
         height: 60
       position:
         x: 250
-        'y': 90
+        "y": 90
       z: 1
       embeds: []
       dependson:
@@ -238,7 +244,7 @@ Metadata:
         height: 60
       position:
         x: 60
-        'y': 280
+        "y": 280
       z: 0
       embeds: []
     81d63279-08b6-410a-81f1-2fe3ed565dfb:
@@ -247,7 +253,7 @@ Metadata:
         height: 60
       position:
         x: 150
-        'y': 280
+        "y": 280
       z: 0
       embeds: []
     eae6e363-cb79-48fa-84fe-1c96c104067a:
@@ -286,7 +292,7 @@ Metadata:
         height: 60
       position:
         x: 230
-        'y': 280
+        "y": 280
       z: 0
       embeds: []
     28469aed-76e5-414e-8775-78aee55b5917:
