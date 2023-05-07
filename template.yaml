@@ -23,9 +23,9 @@ Resources:
             Method: get
       Policies:
         - DynamoDBCrudPolicy:
-          TableName: !Ref ButtonsTable
+            TableName: !Ref ButtonsTable
         - DynamoDBCrudPolicy:
-          TableName: !Ref ButtonLogs
+            TableName: !Ref ButtonLogs
     Metadata:
       "AWS::CloudFormation::Designer":
         id: de66c920-405d-436d-a49c-138dbaed0328
@@ -48,9 +48,9 @@ Resources:
             Method: post
       Policies:
         - DynamoDBCrudPolicy:
-          TableName: !Ref ButtonsTable
+            TableName: !Ref ButtonsTable
         - DynamoDBCrudPolicy:
-          TableName: !Ref ButtonLogs
+            TableName: !Ref ButtonLogs
 
     Metadata:
       "AWS::CloudFormation::Designer":
@@ -74,7 +74,7 @@ Resources:
             Method: get
       Policies:
         - DynamoDBCrudPolicy:
-          TableName: !Ref SettingsTable
+            TableName: !Ref SettingsTable
     Metadata:
       "AWS::CloudFormation::Designer":
         id: 3b6bb2a6-66a7-431d-a4cc-2d69a544444b
@@ -96,7 +96,7 @@ Resources:
             Method: post
       Policies:
         - DynamoDBCrudPolicy:
-          TableName: !Ref SettingsTable
+            TableName: !Ref SettingsTable
     Metadata:
       "AWS::CloudFormation::Designer":
         id: 21ea3b94-f41d-4e3e-91c0-4aedc3e04cbd
@@ -118,7 +118,7 @@ Resources:
             Method: get
       Policies:
         - DynamoDBCrudPolicy:
-          TableName: !Ref SettingsTable
+            TableName: !Ref SettingsTable
     Metadata:
       "AWS::CloudFormation::Designer":
         id: 1c10dc11-0a37-4cc4-94a0-e60b0ac05e3b
