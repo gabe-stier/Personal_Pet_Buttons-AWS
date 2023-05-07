@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Transform: "AWS::Serverless-2016-10-31"
+Transform: 'AWS::Serverless-2016-10-31'
 Description: |
   dogbutton-backend
   Sample SAM Template for dogbutton-backend
@@ -8,7 +8,7 @@ Globals:
     Timeout: 3
 Resources:
   ButtonsFunctionGET:
-    Type: "AWS::Serverless::Function"
+    Type: 'AWS::Serverless::Function'
     Properties:
       CodeUri: buttons/
       Handler: app.lambda_handler
@@ -21,10 +21,14 @@ Resources:
           Properties:
             Path: /buttons
             Method: get
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: de66c920-405d-436d-a49c-138dbaed0328
     DependsOn:
-      - ButtonDataBase
+      - ButtonsTable
+      - ButtonLogs
   ButtonsFunctionPOST:
-    Type: "AWS::Serverless::Function"
+    Type: 'AWS::Serverless::Function'
     Properties:
       CodeUri: buttons/
       Handler: app.lambda_handler
@@ -37,11 +41,14 @@ Resources:
           Properties:
             Path: /buttons
             Method: post
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: ae8d7107-07ae-4df9-beaf-5573f3bac602
     DependsOn:
-      - ButtonDataBase
-
+      - ButtonsTable
+      - ButtonLogs
   SettingsFunctionGET:
-    Type: "AWS::Serverless::Function"
+    Type: 'AWS::Serverless::Function'
     Properties:
       CodeUri: settings/
       Handler: app.lambda_handler
@@ -54,11 +61,13 @@ Resources:
           Properties:
             Path: /settings
             Method: get
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 3b6bb2a6-66a7-431d-a4cc-2d69a544444b
     DependsOn:
-      - SettingsDataBase
-
+      - SettingsTable
   SettingsFunctionPOST:
-    Type: "AWS::Serverless::Function"
+    Type: 'AWS::Serverless::Function'
     Properties:
       CodeUri: settings/
       Handler: app.lambda_handler
@@ -71,10 +80,13 @@ Resources:
           Properties:
             Path: /settings
             Method: post
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 21ea3b94-f41d-4e3e-91c0-4aedc3e04cbd
     DependsOn:
-      - SettingsDataBase
+      - SettingsTable
   PingFunction:
-    Type: "AWS::Serverless::Function"
+    Type: 'AWS::Serverless::Function'
     Properties:
       CodeUri: ping/
       Handler: app.lambda_handler
@@ -87,42 +99,205 @@ Resources:
           Properties:
             Path: /ping
             Method: get
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 1c10dc11-0a37-4cc4-94a0-e60b0ac05e3b
     DependsOn:
-      - SettingsDataBase
-  ButtonLogDataBase:
+      - SettingsTable
+  SettingsTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
+      TableName: SettingsTable
+      AttributeDefinitions:
+        - AttributeName: ID
+          AttributeType: S
+        - AttributeName: VALUE
+          AttributeType: S
       KeySchema:
-        - AttributeName: buttonLogID
-          KeyType: int
-        - AttributeName: buttonLogTime
-          KeyType: string
-        - AttributeName: buttonID
-          KeyType: uuid
-  ButtonDataBase:
+        - AttributeName: ID
+          KeyType: HASH
+        - AttributeName: VALUE
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 3e5b4ea4-35c7-423b-a644-3ba222159d20
+  ButtonsTable:
     Type: 'AWS::DynamoDB::Table'
-    Properties:
+    Properties: 
+      TableName: ButtonsTable
+      AttributeDefinitions:
+        - AttributeName: ID
+          AttributeType: S
+        - AttributeName: Name
+          AttributeType: S
       KeySchema:
-        - AttributeName: buttonID
-          KeyType: uuid
-        - AttributeName: buttonName
-          KeyType: string
-  SettingsDataBase:
+        - AttributeName: ID
+          KeyType: HASH
+        - AttributeName: Name
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 81d63279-08b6-410a-81f1-2fe3ed565dfb
+  ButtonLogs:
     Type: 'AWS::DynamoDB::Table'
-    Properties:
+    Properties: 
+      TableName: ButtonLogs
+      AttributeDefinitions:
+        - AttributeName: ID
+          AttributeType: S
+        - AttributeName: ButtonID
+          AttributeType: N
+        - AttributeName: PressTime
+          AttributeType: S
       KeySchema:
-        - AttributeName: settingName
-          KeyType: string
-        - AttributeName: settingValue
-          KeyType: string
+        - AttributeName: ID
+          KeyType: HASH
+        - AttributeName: ButtonID
+          KeyType: HASH
+        - AttributeName: PressTime
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 3906230f-e4f6-48e5-af49-61da9f9f3aa9
 Outputs:
   HelloWorldApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value: !Sub >-
       https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/
-  HelloWorldFunction:
+  ButtonsFunctionGET:
     Description: Hello World Lambda Function ARN
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
+    Value: !GetAtt ButtonsFunctionGET.Arn
+  ButtonsFunctionGETIamRole:
     Description: Implicit IAM Role created for Hello World function
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+    Value: !GetAtt ButtonsFunctionGETRole.Arn
+Metadata:
+  'AWS::CloudFormation::Designer':
+    1c10dc11-0a37-4cc4-94a0-e60b0ac05e3b:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 60
+        'y': 90
+      z: 1
+      embeds: []
+      dependson:
+        - 3e5b4ea4-35c7-423b-a644-3ba222159d20
+    21ea3b94-f41d-4e3e-91c0-4aedc3e04cbd:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -50
+        'y': 90
+      z: 1
+      embeds: []
+      dependson:
+        - 3e5b4ea4-35c7-423b-a644-3ba222159d20
+    3b6bb2a6-66a7-431d-a4cc-2d69a544444b:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: -50
+        'y': 180
+      z: 1
+      embeds: []
+      dependson:
+        - 3e5b4ea4-35c7-423b-a644-3ba222159d20
+    ae8d7107-07ae-4df9-beaf-5573f3bac602:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 170
+        'y': 90
+      z: 1
+      embeds: []
+      dependson:
+        - 81d63279-08b6-410a-81f1-2fe3ed565dfb
+        - 3906230f-e4f6-48e5-af49-61da9f9f3aa9
+    de66c920-405d-436d-a49c-138dbaed0328:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 250
+        'y': 90
+      z: 1
+      embeds: []
+      dependson:
+        - 81d63279-08b6-410a-81f1-2fe3ed565dfb
+        - 3906230f-e4f6-48e5-af49-61da9f9f3aa9
+    3e5b4ea4-35c7-423b-a644-3ba222159d20:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 60
+        'y': 280
+      z: 0
+      embeds: []
+    81d63279-08b6-410a-81f1-2fe3ed565dfb:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 150
+        'y': 280
+      z: 0
+      embeds: []
+    eae6e363-cb79-48fa-84fe-1c96c104067a:
+      source:
+        id: 3b6bb2a6-66a7-431d-a4cc-2d69a544444b
+      target:
+        id: 3e5b4ea4-35c7-423b-a644-3ba222159d20
+      z: 2
+    5d587350-1c40-4d1e-a932-3ce9c1f20a4d:
+      source:
+        id: 1c10dc11-0a37-4cc4-94a0-e60b0ac05e3b
+      target:
+        id: 3e5b4ea4-35c7-423b-a644-3ba222159d20
+      z: 3
+    e3e326cc-d515-4816-a426-7b3bf911bb1c:
+      source:
+        id: 21ea3b94-f41d-4e3e-91c0-4aedc3e04cbd
+      target:
+        id: 3e5b4ea4-35c7-423b-a644-3ba222159d20
+      z: 4
+    8f043268-ad7e-4068-8671-c7ea1690f85e:
+      source:
+        id: ae8d7107-07ae-4df9-beaf-5573f3bac602
+      target:
+        id: 81d63279-08b6-410a-81f1-2fe3ed565dfb
+      z: 5
+    1dd1845d-6fc6-40be-8e65-a0a4916d492b:
+      source:
+        id: de66c920-405d-436d-a49c-138dbaed0328
+      target:
+        id: 81d63279-08b6-410a-81f1-2fe3ed565dfb
+      z: 6
+    3906230f-e4f6-48e5-af49-61da9f9f3aa9:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 230
+        'y': 280
+      z: 0
+      embeds: []
+    28469aed-76e5-414e-8775-78aee55b5917:
+      source:
+        id: ae8d7107-07ae-4df9-beaf-5573f3bac602
+      target:
+        id: 3906230f-e4f6-48e5-af49-61da9f9f3aa9
+      z: 2
+    905287c9-cba3-44d1-bfca-afc8d4f5f766:
+      source:
+        id: de66c920-405d-436d-a49c-138dbaed0328
+      target:
+        id: 3906230f-e4f6-48e5-af49-61da9f9f3aa9
+      z: 3
