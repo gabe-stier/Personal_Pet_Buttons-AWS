@@ -16,7 +16,7 @@ Resources:
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
+        DogButtonAPI:
           Type: Api
           Properties:
             Path: /buttons
@@ -41,7 +41,7 @@ Resources:
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
+        DogButtonAPI:
           Type: Api
           Properties:
             Path: /buttons
@@ -67,7 +67,7 @@ Resources:
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
+        DogButtonAPI:
           Type: Api
           Properties:
             Path: /settings
@@ -89,7 +89,7 @@ Resources:
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
+        DogButtonAPI:
           Type: Api
           Properties:
             Path: /settings
@@ -111,7 +111,7 @@ Resources:
       Architectures:
         - x86_64
       Events:
-        HelloWorld:
+        DogButtonAPI:
           Type: Api
           Properties:
             Path: /ping
@@ -167,9 +167,8 @@ Resources:
     Metadata:
       "AWS::CloudFormation::Designer":
         id: 3906230f-e4f6-48e5-af49-61da9f9f3aa9
-
 Outputs:
-  HelloWorldApi:
+  DogButtonAPIApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value: !Sub >-
       https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/
