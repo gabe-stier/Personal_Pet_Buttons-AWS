@@ -44,14 +44,38 @@ Resources:
         DogButtonAPI:
           Type: Api
           Properties:
-            Path: /buttons
+            Path: /buttons/{action}
             Method: post
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref ButtonsTable
         - DynamoDBCrudPolicy:
             TableName: !Ref ButtonLogs
-
+    Metadata:
+      "AWS::CloudFormation::Designer":
+        id: ae8d7107-07ae-4df9-beaf-5573f3bac602
+    DependsOn:
+      - ButtonsTable
+      - ButtonLogs
+  ButtonsFunctionDELETE:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      CodeUri: buttons/
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      Events:
+        DogButtonAPI:
+          Type: Api
+          Properties:
+            Path: /buttons/{action}
+            Method: delete``
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ButtonsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ButtonLogs
     Metadata:
       "AWS::CloudFormation::Designer":
         id: ae8d7107-07ae-4df9-beaf-5573f3bac602
@@ -80,7 +104,7 @@ Resources:
         id: 3b6bb2a6-66a7-431d-a4cc-2d69a544444b
     DependsOn:
       - SettingsTable
-  SettingsFunctionPOST:
+  SettingsFunctionPUT:
     Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: settings/
@@ -93,7 +117,7 @@ Resources:
           Type: Api
           Properties:
             Path: /settings
-            Method: post
+            Method: put
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref SettingsTable
@@ -124,7 +148,6 @@ Resources:
         id: 1c10dc11-0a37-4cc4-94a0-e60b0ac05e3b
     DependsOn:
       - SettingsTable
-
   SettingsTable:
     Type: "AWS::DynamoDB::Table"
     Properties:
@@ -167,6 +190,65 @@ Resources:
     Metadata:
       "AWS::CloudFormation::Designer":
         id: 3906230f-e4f6-48e5-af49-61da9f9f3aa9
+  SettingsTableInit:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: >
+          const AWS = require("aws-sdk");
+          const response = require("cfn-response");
+          const docClient = new AWS.DynamoDB.DocumentClient();
+          exports.handler = function(event, context) {
+              console.log(JSON.stringify(event,null,2));
+              var params = {
+                TableName: event.ResourceProperties.DynamoTableName,
+                Item:{
+                    "id": "abc123"
+                }
+            };
+          docClient.put(params, function(err, data) { if (err) {
+            console.log(err);
+            response.send(event, context, "FAILED", {});
+          } else {
+            response.send(event, context, "SUCCESS", {});
+          }
+          });
+          };
+      Handler: index.handler
+      Runtime: nodejs16.x
+      Role: !GetAtt LambdaRole.Arn
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: dynamodbAccessRole
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+            - Effect: Allow
+              Action:
+              - dynamodb:*
+              Resource: "*"
+            - Effect: Allow
+              Action:
+              - logs:*
+              Resource: "*"
+  InitializeDynamoDB:
+    Type: Custom::Install
+    Properties:
+      ServiceToken: !GetAtt SettingsTableInit.Arn
+      DynamoTableName:
+       Ref: SettingsTable
 Outputs:
   DogButtonAPIApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
