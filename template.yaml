@@ -195,25 +195,53 @@ Resources:
     Properties:
       Code:
         ZipFile: >
-          const AWS = require("aws-sdk");
-          const response = require("cfn-response");
-          const docClient = new AWS.DynamoDB.DocumentClient();
-          exports.handler = function(event, context) {
-              console.log(JSON.stringify(event,null,2));
-              var params = {
-                TableName: event.ResourceProperties.DynamoTableName,
-                Item:{
-                    "id": "abc123"
-                }
+            const AWS = require("aws-sdk");
+            const response = require("cfn-response");
+            const docClient = new AWS.DynamoDB.DocumentClient();
+            exports.handler = function (event, context) {
+              console.log(JSON.stringify(event, null, 2));
+              var params = [
+                {
+                  TableName: event.ResourceProperties.DynamoTableName,
+                  Item: {
+                    ID: "quietTime",
+                    value: [],
+                  },
+                },
+                {
+                  TableName: event.ResourceProperties.DynamoTableName,
+                  Item: {
+                    ID: "quietButtons",
+                    value: {},
+                  },
+                },
+                {
+                  TableName: event.ResourceProperties.DynamoTableName,
+                  Item: {
+                    ID: "sendNotificatios",
+                    value: true,
+                  },
+                },
+                {
+                  TableName: event.ResourceProperties.DynamoTableName,
+                  Item: {
+                    ID: "sendAudio",
+                    value: true,
+                  },
+                },
+              ];
+              for (var param in params) {
+                docClient.put(params[param], function (err, data) {
+                  if (err) {
+                    console.log(err);
+                    response.send(event, context, "FAILED", {});
+                  } else {
+                    console.log(data)
+                    response.send(event, context, "SUCCESS", {});
+                  }
+                });
+              }
             };
-          docClient.put(params, function(err, data) { if (err) {
-            console.log(err);
-            response.send(event, context, "FAILED", {});
-          } else {
-            response.send(event, context, "SUCCESS", {});
-          }
-          });
-          };
       Handler: index.handler
       Runtime: nodejs16.x
       Role: !GetAtt LambdaRole.Arn

@@ -1,6 +1,7 @@
 import json
+import boto3
 
-# import requests
+# client = boto3.client("dynamodb")
 
 
 def lambda_handler(event, context):
@@ -25,27 +26,26 @@ def lambda_handler(event, context):
         Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     """
 
-    # try:
-    #     ip = requests.get("http://checkip.amazonaws.com/")
-    # except requests.RequestException as e:
-    #     # Send some context about this error to Lambda Logs
-    #     print(e)
-
-    #     raise e
-
     print(event)
-    print(context)
+
+    response_code = 200
 
     return_body = {
-        "settings": {
-
-        },
-        "message": "hello settings",
-        "method": event['httpMethod']
-        # "location": ip.text.replace("\n", "")
+        "method": event['httpMethod'],
+        "event": event,
+        "body": json.loads(event['body'])
     }
+
+    if event['httpMethod'] == "PUT":
+        pass
+        return_body['test'] = 'test'
+    elif event['httpMethod'] == "GET":
+        pass
+    else:
+        response_code = 405
+        return_body = {"Method Not Supported!": ""}
 
     return {
         "statusCode": 200,
-        "body": json.dumps(return_body),
+        "body": json.dumps(return_body)
     }
