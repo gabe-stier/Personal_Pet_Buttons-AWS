@@ -219,7 +219,7 @@ Resources:
                   {
                     TableName: event.ResourceProperties.DynamoTableName,
                     Item: {
-                      ID: "sendNotificatios",
+                      ID: "sendNotifications",
                       value: true,
                     },
                   },
