@@ -1,0 +1,83 @@
+{
+    "body": "{\r\n    \"test\":\"test\"\r\n}",
+    "headers": {
+        "Accept": "*/*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Content-Length": "23",
+        "Content-Type": "application/json",
+        "Host": "localhost:3000",
+        "Postman-Token": "b383653a-87fe-4996-a79e-5b5aabbc1b49",
+        "User-Agent": "PostmanRuntime/7.32.2",
+        "X-Forwarded-Port": "3000",
+        "X-Forwarded-Proto": "http"
+    },
+    "httpMethod": "GET",
+    "isBase64Encoded": false,
+    "multiValueHeaders": {
+        "Accept": [
+            "*/*"
+        ],
+        "Accept-Encoding": [
+            "gzip, deflate, br"
+        ],
+        "Connection": [
+            "keep-alive"
+        ],
+        "Content-Length": [
+            "23"
+        ],
+        "Content-Type": [
+            "application/json"
+        ],
+        "Host": [
+            "localhost:3000"
+        ],
+        "Postman-Token": [
+            "b383653a-87fe-4996-a79e-5b5aabbc1b49"
+        ],
+        "User-Agent": [
+            "PostmanRuntime/7.32.2"
+        ],
+        "X-Forwarded-Port": [
+            "3000"
+        ],
+        "X-Forwarded-Proto": [
+            "http"
+        ]
+    },
+    "multiValueQueryStringParameters": null,
+    "path": "/settings",
+    "pathParameters": null,
+    "queryStringParameters": null,
+    "requestContext": {
+        "accountId": "123456789012",
+        "apiId": "1234567890",
+        "domainName": "localhost:3000",
+        "extendedRequestId": null,
+        "httpMethod": "GET",
+        "identity": {
+            "accountId": null,
+            "apiKey": null,
+            "caller": null,
+            "cognitoAuthenticationProvider": null,
+            "cognitoAuthenticationType": null,
+            "cognitoIdentityPoolId": null,
+            "sourceIp": "127.0.0.1",
+            "user": null,
+            "userAgent": "Custom User Agent String",
+            "userArn": null
+        },
+        "path": "/settings",
+        "protocol": "HTTP/1.1",
+        "requestId": "f10f6459-e1f5-497f-8b4d-a567c82178e9",
+        "requestTime": "08/May/2023:01:11:18 +0000",
+        "requestTimeEpoch": 1683508278,
+        "resourceId": "123456",
+        "resourcePath": "/settings",
+        "stage": "Prod"
+    },
+    "resource": "/settings",
+    "stageVariables": null,
+    "version": "1.0"
+}
