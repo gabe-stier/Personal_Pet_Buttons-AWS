@@ -11,7 +11,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Cors: "'*'"
+      Cors: '''*'''
       Auth:
         DefaultAuthorizer: MyCognitoAuthorizer
         Authorizers:
@@ -20,9 +20,8 @@ Resources:
   ButtonsFunctionGET:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: buttons/
-      Handler: app.lambda_handler
-      Runtime: python3.10
+      Handler: src/handlers/buttons.ButtonsGet
+      Runtime: nodejs18.x
       Architectures:
         - x86_64
       Events:
@@ -38,9 +37,8 @@ Resources:
   ButtonsFunctionPOST:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: buttons/
-      Handler: app.lambda_handler
-      Runtime: python3.10
+      Handler: src/handlers/buttons.ButtonsPost
+      Runtime: nodejs18.x
       Architectures:
         - x86_64
       Events:
@@ -59,9 +57,8 @@ Resources:
   ButtonsFunctionDELETE:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: buttons/
-      Handler: app.lambda_handler
-      Runtime: python3.10
+      Handler: src/handlers/buttons.ButtonsDelete
+      Runtime: nodejs18.x
       Architectures:
         - x86_64
       Events:
@@ -80,9 +77,8 @@ Resources:
   SettingsFunctionGET:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: settings/
-      Handler: app.lambda_handler
-      Runtime: python3.10
+      Handler: src/handlers/settings.SettingsGet
+      Runtime: nodejs18.x
       Architectures:
         - x86_64
       Events:
@@ -129,9 +125,8 @@ Resources:
   SettingsFunctionPUT:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: settings/
-      Handler: app.lambda_handler
-      Runtime: python3.10
+      Handler: src/handlers/settings.SettingsPut
+      Runtime: nodejs18.x
       Architectures:
         - x86_64
       Events:
@@ -181,9 +176,8 @@ Resources:
   PingFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ping/
-      Handler: app.lambda_handler
-      Runtime: python3.10
+      Handler: src/handlers/ping.PingGet
+      Runtime: nodejs18.x
       Architectures:
         - x86_64
       Events:
@@ -327,11 +321,11 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:*
-                Resource: "*"
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - logs:*
-                Resource: "*"
+                Resource: '*'
   InitializeSettings:
     Type: Custom::Install
     Properties:
@@ -374,17 +368,17 @@ Resources:
       Bucket: !Ref ConfigBucket
       PolicyDocument:
         Id: RequireEncryptionInTransit
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
-          - Principal: "*"
-            Action: "*"
+          - Principal: '*'
+            Action: '*'
             Effect: Deny
             Resource:
               - !GetAtt ConfigBucket.Arn
               - !Sub ${ConfigBucket.Arn}/*
             Condition:
               Bool:
-                aws:SecureTransport: "false"
+                aws:SecureTransport: 'false'
   PetButtonsLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
