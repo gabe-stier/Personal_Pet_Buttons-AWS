@@ -11,7 +11,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Cors: '''*'''
+      Cors: "'*'"
       Auth:
         DefaultAuthorizer: MyCognitoAuthorizer
         Authorizers:
@@ -32,11 +32,9 @@ Resources:
             RestApiId: !Ref ButtonsAPI
             Path: /buttons
             Method: get
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ButtonsTable
     DependsOn:
-      - ButtonsTable
+      - ErrorLogStream
+      - ButtonLogStream
   ButtonsFunctionPOST:
     Type: AWS::Serverless::Function
     Properties:
@@ -55,11 +53,9 @@ Resources:
             RequestParameters:
               - method.request.path.action:
                   Required: true
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ButtonsTable
     DependsOn:
-      - ButtonsTable
+      - ErrorLogStream
+      - ButtonLogStream
   ButtonsFunctionDELETE:
     Type: AWS::Serverless::Function
     Properties:
@@ -78,11 +74,9 @@ Resources:
             RequestParameters:
               - method.request.path.action:
                   Required: true
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref ButtonsTable
     DependsOn:
-      - ButtonsTable
+      - ErrorLogStream
+      - ButtonLogStream
   SettingsFunctionGET:
     Type: AWS::Serverless::Function
     Properties:
@@ -99,8 +93,6 @@ Resources:
             Path: /settings
             Method: get
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SettingsTable
         - Statement:
             - Effect: Allow
               Action:
@@ -132,7 +124,8 @@ Resources:
           CONFIGBUCKET_BUCKET_NAME: !Ref ConfigBucket
           CONFIGBUCKET_BUCKET_ARN: !GetAtt ConfigBucket.Arn
     DependsOn:
-      - SettingsTable
+      - ErrorLogStream
+      - ButtonLogStream
   SettingsFunctionPUT:
     Type: AWS::Serverless::Function
     Properties:
@@ -152,8 +145,6 @@ Resources:
               - method.request.path.action:
                   Required: true
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SettingsTable
         - Statement:
             - Effect: Allow
               Action:
@@ -185,7 +176,8 @@ Resources:
           CONFIGBUCKET_BUCKET_NAME: !Ref ConfigBucket
           CONFIGBUCKET_BUCKET_ARN: !GetAtt ConfigBucket.Arn
     DependsOn:
-      - SettingsTable
+      - ErrorLogStream
+      - ButtonLogStream
   PingFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -201,8 +193,6 @@ Resources:
             Path: /ping
             Method: get
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref SettingsTable
         - Statement:
             - Effect: Allow
               Action:
@@ -234,7 +224,8 @@ Resources:
           CONFIGBUCKET_BUCKET_NAME: !Ref ConfigBucket
           CONFIGBUCKET_BUCKET_ARN: !GetAtt ConfigBucket.Arn
     DependsOn:
-      - SettingsTable
+      - ErrorLogStream
+      - ButtonLogStream
   SettingsFileInit:
     Type: AWS::Lambda::Function
     Properties:
@@ -244,53 +235,77 @@ Resources:
           const response = require("cfn-response");
           const s3 = new aws.S3();
           settingsData = {
-              globalQuietTime: {
-                quietStart: "",
-                quietStop: ""
-              },
-              sendNotifications: true,
-              quietUsers: []
-            };
+            globalQuietTime: {
+              quietStart: "",
+              quietStop: "",
+            },
+            sendNotifications: true,
+            quietUsers: [],
+          };
           buttonsData = {
             potty: {
               disabled: false,
               subscriptedUsers: ["*"],
-              uuid: aws.util.uuid.v4()
+              uuid: aws.util.uuid.v4(),
             },
             outside: {
               disabled: false,
               subscriptedUsers: ["*"],
-              uuid: aws.util.uuid.v4()
+              uuid: aws.util.uuid.v4(),
             },
             outside: {
               disabled: false,
               subscriptedUsers: ["*"],
-              uuid: aws.util.uuid.v4()
+              uuid: aws.util.uuid.v4(),
             },
           };
           exports.handler = function (event, context) {
             console.log("REQUEST RECEIVED:\n" + JSON.stringify(event));
-            try {
-              s3.putObject({
-                Body: JSON.stringify(settingsData),
-                Bucket: event.ResourceProperties.ConfBucket,
-                Key: "settings.json",
-                ContentType: "application/json",
-              }).promise();
-              s3.putObject({
-                Body: JSON.stringify(buttonsData),
-                Bucket: event.ResourceProperties.ConfBucket,
-                Key: "buttons.json",
-                ContentType: "application/json",
-              }).promise();
-              response.send(event, context, "SUCCESS", {});
-            } catch (err) {
-              response.send(event, context, "FAILED", {});
+            if (event.RequestType == "Delete") {
+              try {
+                s3.deleteObject({
+                  Bucket: event.ResourceProperties.ConfBucket,
+                  Key: "settings.json",
+                }).promise();
+                response.send(event, context, "SUCCESS", {});
+              } catch (err) {
+                response.send(event, context, "FAILED", {});
+              }
+            } else if (event.RequestType == "Create") {
+              try {
+                s3_object = s3
+                  .getObject({
+                    Bucket: event.ResourceProperties.ConfBucket,
+                    Key: "settings.json",
+                  })
+                  .promise();
+                response.send(event, context, "SUCCESS", {});
+              } catch (err) {
+                try {
+                  s3.putObject({
+                    Body: JSON.stringify(settingsData),
+                    Bucket: event.ResourceProperties.ConfBucket,
+                    Key: "settings.json",
+                    ContentType: "application/json",
+                  }).promise();
+                  s3.putObject({
+                    Body: JSON.stringify(buttonsData),
+                    Bucket: event.ResourceProperties.ConfBucket,
+                    Key: "buttons.json",
+                    ContentType: "application/json",
+                  }).promise();
+                  response.send(event, context, "SUCCESS", {});
+                } catch (err) {
+                  response.send(event, context, "FAILED", {});
+                }
+              }
             }
           };
       Handler: index.handler
       Runtime: nodejs16.x
       Role: !GetAtt LambdaRole.Arn
+    DependsOn:
+      - ErrorLogStream
   LambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -312,11 +327,11 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:*
-                Resource: '*'
+                Resource: "*"
               - Effect: Allow
                 Action:
                   - logs:*
-                Resource: '*'
+                Resource: "*"
   InitializeSettings:
     Type: Custom::Install
     Properties:
@@ -359,33 +374,36 @@ Resources:
       Bucket: !Ref ConfigBucket
       PolicyDocument:
         Id: RequireEncryptionInTransit
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-          - Principal: '*'
-            Action: '*'
+          - Principal: "*"
+            Action: "*"
             Effect: Deny
             Resource:
               - !GetAtt ConfigBucket.Arn
               - !Sub ${ConfigBucket.Arn}/*
             Condition:
               Bool:
-                aws:SecureTransport: 'false'
+                aws:SecureTransport: "false"
   PetButtonsLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 90
       LogGroupName: PetButtons
-      LogGroupClass: STANDARD
-  ButtonsLogStream:
+  ButtonLogStream:
     Type: AWS::Logs::LogStream
     Properties:
       LogGroupName: PetButtons
       LogStreamName: ButtonLogs
+    DependsOn:
+      - PetButtonsLogGroup
   ErrorLogStream:
     Type: AWS::Logs::LogStream
     Properties:
       LogGroupName: PetButtons
       LogStreamName: ErrorLogs
+    DependsOn:
+      - PetButtonsLogGroup
 Outputs:
   DogButtonAPIApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
