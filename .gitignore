@@ -245,3 +245,5 @@ $RECYCLE.BIN/
 .aws-sam/*
 
 node_modules
+user_auth.sh
+auth.json

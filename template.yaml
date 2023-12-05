@@ -10,13 +10,13 @@ Resources:
   ButtonsAPI:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Prod
-      Cors: '''*'''
+      StageName: api
+      Cors: "'*'"
       Auth:
         DefaultAuthorizer: MyCognitoAuthorizer
         Authorizers:
           MyCognitoAuthorizer:
-            UserPoolArn: !GetAtt MyCognitoUserPool.Arn
+            UserPoolArn: !GetAtt UserPool.Arn
   ButtonsFunctionGET:
     Type: AWS::Serverless::Function
     Properties:
@@ -184,6 +184,7 @@ Resources:
         DogButtonAPI:
           Type: Api
           Properties:
+            RestApiId: !Ref ButtonsAPI
             Path: /ping
             Method: get
       Policies:
@@ -321,17 +322,17 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:*
-                Resource: '*'
+                Resource: "*"
               - Effect: Allow
                 Action:
                   - logs:*
-                Resource: '*'
+                Resource: "*"
   InitializeSettings:
     Type: Custom::Install
     Properties:
       ServiceToken: !GetAtt SettingsFileInit.Arn
       ConfBucket: !Ref ConfigBucket
-  MyCognitoUserPool:
+  UserPool:
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: CognitoUserPoolName
@@ -344,12 +345,22 @@ Resources:
         - AttributeDataType: String
           Name: email
           Required: false
-  MyCognitoUserPoolClient:
+  UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      UserPoolId: !Ref MyCognitoUserPool
+      UserPoolId: !Ref UserPool
       ClientName: CognitoUserPoolClientName
       GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+  UserPoolUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      DesiredDeliveryMediums:
+        - EMAIL
+      Username: !Ref CognitoUserEmail
+      UserPoolId: !Ref UserPool
   ConfigBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -368,17 +379,17 @@ Resources:
       Bucket: !Ref ConfigBucket
       PolicyDocument:
         Id: RequireEncryptionInTransit
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-          - Principal: '*'
-            Action: '*'
+          - Principal: "*"
+            Action: "*"
             Effect: Deny
             Resource:
               - !GetAtt ConfigBucket.Arn
               - !Sub ${ConfigBucket.Arn}/*
             Condition:
               Bool:
-                aws:SecureTransport: 'false'
+                aws:SecureTransport: "false"
   PetButtonsLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -401,10 +412,20 @@ Resources:
 Outputs:
   DogButtonAPIApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
-    Value: !Sub https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/
+    Value: !Sub https://${ButtonsAPI}.execute-api.${AWS::Region}.amazonaws.com/api/
   ButtonsFunctionGET:
     Description: Hello World Lambda Function ARN
     Value: !GetAtt ButtonsFunctionGET.Arn
   ButtonsFunctionGETIamRole:
     Description: Implicit IAM Role created for Hello World function
     Value: !GetAtt ButtonsFunctionGETRole.Arn
+  UserPoolID:
+    Description: ID of the UserPool
+    Value: !Ref UserPool
+  CleintUserPoolID:
+    Description: ID of the UserPoolClient
+    Value: !Ref UserPoolClient
+Parameters:
+  CognitoUserEmail:
+    Description: Email address of the created user
+    Type: String
