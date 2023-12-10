@@ -11,7 +11,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: api
-      Cors: '''*'''
+      Cors: "'*'"
       Auth:
         DefaultAuthorizer: MyCognitoAuthorizer
         Authorizers:
@@ -243,19 +243,14 @@ Resources:
           buttonsData = {
             potty: {
               disabled: false,
-              subscriptedUsers: ["*"],
+              subscribedUsers: ["*"],
               uuid: aws.util.uuid.v4(),
             },
             outside: {
               disabled: false,
-              subscriptedUsers: ["*"],
+              subscribedUsers: ["*"],
               uuid: aws.util.uuid.v4(),
-            },
-            outside: {
-              disabled: false,
-              subscriptedUsers: ["*"],
-              uuid: aws.util.uuid.v4(),
-            },
+            }
           };
           exports.handler = function (event, context) {
             console.log("REQUEST RECEIVED:\n" + JSON.stringify(event));
@@ -319,11 +314,11 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:*
-                Resource: '*'
+                Resource: "*"
               - Effect: Allow
                 Action:
                   - logs:*
-                Resource: '*'
+                Resource: "*"
   InitializeSettings:
     Type: Custom::Install
     Properties:
@@ -393,11 +388,11 @@ Resources:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       UserPoolId: !Ref UserPool
-      Domain: !Ref CognitoDomainName
+      Domain: !Sub ${CognitoDomainName}-${AWS::AccountId}
   ConfigBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${AWS::StackName}-configbuc-${AWS::AccountId}
+      BucketName: !Sub ${AWS::StackName}-${ConfigBucketName}-${AWS::AccountId}
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -412,17 +407,17 @@ Resources:
       Bucket: !Ref ConfigBucket
       PolicyDocument:
         Id: RequireEncryptionInTransit
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-          - Principal: '*'
-            Action: '*'
+          - Principal: "*"
+            Action: "*"
             Effect: Deny
             Resource:
               - !GetAtt ConfigBucket.Arn
               - !Sub ${ConfigBucket.Arn}/*
             Condition:
               Bool:
-                aws:SecureTransport: 'false'
+                aws:SecureTransport: "false"
   PetButtonsLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -470,14 +465,14 @@ Parameters:
     Description: Email address of the created user
     Type: String
     Default: buttons.json
-  ConfBucketName:
+  ConfigBucketName:
     Description: Email address of the created user
     Type: String
-    Default: !Sub ${AWS::StackName}-configbuc-${AWS::AccountId}
+    Default: config-bucket
   CognitoDomainName:
     Description: Email address of the created user
     Type: String
-    Default: !Sub petbuttons-${AWS::AccountId}
+    Default: petbuttons
   PetButtonLogStreamGroupName:
     Description: Email address of the created user
     Type: String
