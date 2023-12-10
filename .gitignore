@@ -247,3 +247,4 @@ $RECYCLE.BIN/
 node_modules
 *auth*
 deploy*
+config_example.json

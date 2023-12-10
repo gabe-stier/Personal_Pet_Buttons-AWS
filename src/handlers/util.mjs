@@ -25,16 +25,14 @@ export async function readS3File(bucket, key, log_id = null) {
   });
   try {
     const file = await client.send(cmd);
-    console.log(file);
-    const file_data = await file.Body.transformToString();
-    console.log(file_data);
-    return configureResponse(200, file_data, String);
+    return await file.Body.transformToString();
   } catch (err) {
     console.error({ error: err, logId: log_id });
-    return configureResponse(500, {
-      errorMessage:
-        "Something wrong has happend. Please consult your error logs.",
-      logId: log_id,
-    });
+    return null;
   }
+}
+export async function basicSetup(event) {
+  console.log(event);
+  let log_id = event.requestContext.requestId;
+  return log_id;
 }
