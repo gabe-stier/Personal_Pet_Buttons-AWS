@@ -393,7 +393,7 @@ Resources:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       UserPoolId: !Ref UserPool
-      Domain: petbuttons-gds
+      Domain: !Ref CognitoDomainName
   ConfigBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -446,12 +446,6 @@ Outputs:
   DogButtonAPIApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value: !Ref ButtonsAPI
-  ButtonsFunctionGET:
-    Description: Hello World Lambda Function ARN
-    Value: !GetAtt ButtonsFunctionGET.Arn
-  ButtonsFunctionGETIamRole:
-    Description: Implicit IAM Role created for Hello World function
-    Value: !GetAtt ButtonsFunctionGETRole.Arn
   UserPoolID:
     Description: ID of the UserPool
     Value: !Ref UserPool
@@ -459,17 +453,11 @@ Outputs:
     Description: ID of the UserPoolClient
     Value: !Ref UserPoolClient
   ClientUserPoolDomain:
-    Description: Name of the domain
+    Description: Name of the Cognito domain
     Value: !Ref UserPoolDomain
   ClientUserPoolFQDN:
-    Description: Name of the domain
+    Description: FQDN of Cognito
     Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
-  Blah1:
-    Description: Test
-    Value: !Sub ${UserPoolResourceServer}/read
-  Blah2:
-    Description: Test
-    Value: !Sub ${UserPoolResourceServer}/update
 Parameters:
   CognitoUserEmail:
     Description: Email address of the created user
