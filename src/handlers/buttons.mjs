@@ -1,9 +1,10 @@
+import { configureResponse } from "./util.mjs";
 export const ButtonsPost = async (event) => {
-  return { statusCode: 200, body: {} };
+  return configureResponse(200, {});
 };
 export const ButtonsGet = async (event) => {
-  return { statusCode: 200, body: {} };
+  return configureResponse(200, {});
 };
 export const ButtonsDelete = async (event) => {
-  return { statusCode: 200, body: {} };
+  return configureResponse(200, {});
 };

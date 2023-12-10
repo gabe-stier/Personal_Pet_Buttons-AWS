@@ -11,7 +11,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: api
-      Cors: "'*'"
+      Cors: '''*'''
       Auth:
         DefaultAuthorizer: MyCognitoAuthorizer
         Authorizers:
@@ -31,6 +31,39 @@ Resources:
             RestApiId: !Ref ButtonsAPI
             Path: /buttons
             Method: get
+      Environment:
+        Variables:
+          CONFIGBUCKET_BUCKET_NAME: !Ref ConfigBucket
+          CONFIGBUCKET_BUCKET_ARN: !GetAtt ConfigBucket.Arn
+          SETTINGS_FILE_NAME: !Ref SettingsFileName
+          BUTTONS_FILE_NAME: !Ref ButtonsFileName
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:GetObjectAcl
+                - s3:GetObjectLegalHold
+                - s3:GetObjectRetention
+                - s3:GetObjectTorrent
+                - s3:GetObjectVersion
+                - s3:GetObjectVersionAcl
+                - s3:GetObjectVersionForReplication
+                - s3:GetObjectVersionTorrent
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListBucketVersions
+                - s3:ListMultipartUploadParts
+                - s3:AbortMultipartUpload
+                - s3:DeleteObject
+                - s3:DeleteObjectVersion
+                - s3:PutObject
+                - s3:PutObjectLegalHold
+                - s3:PutObjectRetention
+                - s3:RestoreObject
+              Resource:
+                - !Sub arn:${AWS::Partition}:s3:::${ConfigBucket}
+                - !Sub arn:${AWS::Partition}:s3:::${ConfigBucket}/*
     DependsOn:
       - ErrorLogStream
       - ButtonLogStream
@@ -51,6 +84,39 @@ Resources:
             RequestParameters:
               - method.request.path.action:
                   Required: true
+      Environment:
+        Variables:
+          CONFIGBUCKET_BUCKET_NAME: !Ref ConfigBucket
+          CONFIGBUCKET_BUCKET_ARN: !GetAtt ConfigBucket.Arn
+          SETTINGS_FILE_NAME: !Ref SettingsFileName
+          BUTTONS_FILE_NAME: !Ref ButtonsFileName
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:GetObjectAcl
+                - s3:GetObjectLegalHold
+                - s3:GetObjectRetention
+                - s3:GetObjectTorrent
+                - s3:GetObjectVersion
+                - s3:GetObjectVersionAcl
+                - s3:GetObjectVersionForReplication
+                - s3:GetObjectVersionTorrent
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListBucketVersions
+                - s3:ListMultipartUploadParts
+                - s3:AbortMultipartUpload
+                - s3:DeleteObject
+                - s3:DeleteObjectVersion
+                - s3:PutObject
+                - s3:PutObjectLegalHold
+                - s3:PutObjectRetention
+                - s3:RestoreObject
+              Resource:
+                - !Sub arn:${AWS::Partition}:s3:::${ConfigBucket}
+                - !Sub arn:${AWS::Partition}:s3:::${ConfigBucket}/*
     DependsOn:
       - ErrorLogStream
       - ButtonLogStream
@@ -71,6 +137,39 @@ Resources:
             RequestParameters:
               - method.request.path.action:
                   Required: true
+      Environment:
+        Variables:
+          CONFIGBUCKET_BUCKET_NAME: !Ref ConfigBucket
+          CONFIGBUCKET_BUCKET_ARN: !GetAtt ConfigBucket.Arn
+          SETTINGS_FILE_NAME: !Ref SettingsFileName
+          BUTTONS_FILE_NAME: !Ref ButtonsFileName
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:GetObjectAcl
+                - s3:GetObjectLegalHold
+                - s3:GetObjectRetention
+                - s3:GetObjectTorrent
+                - s3:GetObjectVersion
+                - s3:GetObjectVersionAcl
+                - s3:GetObjectVersionForReplication
+                - s3:GetObjectVersionTorrent
+                - s3:ListBucket
+                - s3:ListBucketMultipartUploads
+                - s3:ListBucketVersions
+                - s3:ListMultipartUploadParts
+                - s3:AbortMultipartUpload
+                - s3:DeleteObject
+                - s3:DeleteObjectVersion
+                - s3:PutObject
+                - s3:PutObjectLegalHold
+                - s3:PutObjectRetention
+                - s3:RestoreObject
+              Resource:
+                - !Sub arn:${AWS::Partition}:s3:::${ConfigBucket}
+                - !Sub arn:${AWS::Partition}:s3:::${ConfigBucket}/*
     DependsOn:
       - ErrorLogStream
       - ButtonLogStream
@@ -119,6 +218,8 @@ Resources:
         Variables:
           CONFIGBUCKET_BUCKET_NAME: !Ref ConfigBucket
           CONFIGBUCKET_BUCKET_ARN: !GetAtt ConfigBucket.Arn
+          SETTINGS_FILE_NAME: !Ref SettingsFileName
+          BUTTONS_FILE_NAME: !Ref ButtonsFileName
     DependsOn:
       - ErrorLogStream
       - ButtonLogStream
@@ -170,6 +271,8 @@ Resources:
         Variables:
           CONFIGBUCKET_BUCKET_NAME: !Ref ConfigBucket
           CONFIGBUCKET_BUCKET_ARN: !GetAtt ConfigBucket.Arn
+          SETTINGS_FILE_NAME: !Ref SettingsFileName
+          BUTTONS_FILE_NAME: !Ref ButtonsFileName
     DependsOn:
       - ErrorLogStream
       - ButtonLogStream
@@ -218,6 +321,8 @@ Resources:
         Variables:
           CONFIGBUCKET_BUCKET_NAME: !Ref ConfigBucket
           CONFIGBUCKET_BUCKET_ARN: !GetAtt ConfigBucket.Arn
+          SETTINGS_FILE_NAME: !Ref SettingsFileName
+          BUTTONS_FILE_NAME: !Ref ButtonsFileName
     DependsOn:
       - ErrorLogStream
       - ButtonLogStream
@@ -260,33 +365,28 @@ Resources:
               try {
                 s3.deleteObject({
                   Bucket: event.ResourceProperties.ConfBucket,
-                  Key: "settings.json",
+                  Key: event.ResourceProperties.SettingsFileName,
+                }).promise();
+                s3.deleteObject({
+                  Bucket: event.ResourceProperties.ConfBucket,
+                  Key: event.ResourceProperties.ButtonsFileName,
                 }).promise();
                 response.send(event, context, "SUCCESS", {});
               } catch (err) {
                 response.send(event, context, "FAILED", {});
               }
             } else if (event.RequestType == "Create") {
-              try {
-                s3_object = s3
-                  .getObject({
-                    Bucket: event.ResourceProperties.ConfBucket,
-                    Key: "settings.json",
-                  })
-                  .promise();
-                response.send(event, context, "SUCCESS", {});
-              } catch (err) {
                 try {
                   s3.putObject({
                     Body: JSON.stringify(settingsData),
                     Bucket: event.ResourceProperties.ConfBucket,
-                    Key: "settings.json",
+                    Key: event.ResourceProperties.SettingsFileName,
                     ContentType: "application/json",
                   }).promise();
                   s3.putObject({
                     Body: JSON.stringify(buttonsData),
                     Bucket: event.ResourceProperties.ConfBucket,
-                    Key: "buttons.json",
+                    Key: event.ResourceProperties.ButtonsFileName,
                     ContentType: "application/json",
                   }).promise();
                   response.send(event, context, "SUCCESS", {});
@@ -294,7 +394,6 @@ Resources:
                   response.send(event, context, "FAILED", {});
                 }
               }
-            }
           };
       Handler: index.handler
       Runtime: nodejs16.x
@@ -322,16 +421,18 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:*
-                Resource: "*"
+                Resource: '*'
               - Effect: Allow
                 Action:
                   - logs:*
-                Resource: "*"
+                Resource: '*'
   InitializeSettings:
     Type: Custom::Install
     Properties:
       ServiceToken: !GetAtt SettingsFileInit.Arn
       ConfBucket: !Ref ConfigBucket
+      SettingsFileName: !Ref SettingsFileName
+      ButtonsFileName: !Ref ButtonsFileName
   UserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -351,9 +452,38 @@ Resources:
       UserPoolId: !Ref UserPool
       ClientName: CognitoUserPoolClientName
       GenerateSecret: false
+      AllowedOAuthFlowsUserPoolClient: true
       ExplicitAuthFlows:
         - ALLOW_USER_PASSWORD_AUTH
         - ALLOW_REFRESH_TOKEN_AUTH
+      CallbackURLs:
+        - https://localhost
+        - https://oauth.pstmn.io/v1/callback
+      LogoutURLs:
+        - https://localhost
+      AllowedOAuthScopes:
+        - openid
+        - email
+        - phone
+        - profile
+        - !Sub ${UserPoolResourceServer}/read
+        - !Sub ${UserPoolResourceServer}/update
+      AllowedOAuthFlows:
+        - code
+      PreventUserExistenceErrors: ENABLED
+      SupportedIdentityProviders:
+        - COGNITO
+  UserPoolResourceServer:
+    Type: AWS::Cognito::UserPoolResourceServer
+    Properties:
+      UserPoolId: !Ref UserPool
+      Name: !Sub ${AWS::StackName}API
+      Identifier: !Sub ${AWS::StackName}API
+      Scopes:
+        - ScopeName: read
+          ScopeDescription: Read Events
+        - ScopeName: update
+          ScopeDescription: Update events
   UserPoolUser:
     Type: AWS::Cognito::UserPoolUser
     Properties:
@@ -361,6 +491,11 @@ Resources:
         - EMAIL
       Username: !Ref CognitoUserEmail
       UserPoolId: !Ref UserPool
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !Ref UserPool
+      Domain: petbuttons-gds
   ConfigBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -379,40 +514,40 @@ Resources:
       Bucket: !Ref ConfigBucket
       PolicyDocument:
         Id: RequireEncryptionInTransit
-        Version: "2012-10-17"
+        Version: '2012-10-17'
         Statement:
-          - Principal: "*"
-            Action: "*"
+          - Principal: '*'
+            Action: '*'
             Effect: Deny
             Resource:
               - !GetAtt ConfigBucket.Arn
               - !Sub ${ConfigBucket.Arn}/*
             Condition:
               Bool:
-                aws:SecureTransport: "false"
+                aws:SecureTransport: 'false'
   PetButtonsLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
       RetentionInDays: 90
-      LogGroupName: PetButtons
+      LogGroupName: !Ref PetButtonLogStreamGroupName
   ButtonLogStream:
     Type: AWS::Logs::LogStream
     Properties:
-      LogGroupName: PetButtons
-      LogStreamName: ButtonLogs
+      LogGroupName: !Ref PetButtonLogStreamGroupName
+      LogStreamName: !Ref ButtonLogStreamName
     DependsOn:
       - PetButtonsLogGroup
   ErrorLogStream:
     Type: AWS::Logs::LogStream
     Properties:
-      LogGroupName: PetButtons
-      LogStreamName: ErrorLogs
+      LogGroupName: !Ref PetButtonLogStreamGroupName
+      LogStreamName: !Ref ErrorLogStreamName
     DependsOn:
       - PetButtonsLogGroup
 Outputs:
   DogButtonAPIApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
-    Value: !Sub https://${ButtonsAPI}.execute-api.${AWS::Region}.amazonaws.com/api/
+    Value: !Ref ButtonsAPI
   ButtonsFunctionGET:
     Description: Hello World Lambda Function ARN
     Value: !GetAtt ButtonsFunctionGET.Arn
@@ -422,10 +557,50 @@ Outputs:
   UserPoolID:
     Description: ID of the UserPool
     Value: !Ref UserPool
-  CleintUserPoolID:
+  ClientUserPoolID:
     Description: ID of the UserPoolClient
     Value: !Ref UserPoolClient
+  ClientUserPoolDomain:
+    Description: Name of the domain
+    Value: !Ref UserPoolDomain
+  ClientUserPoolFQDN:
+    Description: Name of the domain
+    Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
+  Blah1:
+    Description: Test
+    Value: !Sub ${UserPoolResourceServer}/read
+  Blah2:
+    Description: Test
+    Value: !Sub ${UserPoolResourceServer}/update
 Parameters:
   CognitoUserEmail:
     Description: Email address of the created user
     Type: String
+  SettingsFileName:
+    Description: Email address of the created user
+    Type: String
+    Default: settings.json
+  ButtonsFileName:
+    Description: Email address of the created user
+    Type: String
+    Default: buttons.json
+  ConfBucketName:
+    Description: Email address of the created user
+    Type: String
+    Default: !Sub ${AWS::StackName}-configbuc-${AWS::AccountId}
+  CognitoDomainName:
+    Description: Email address of the created user
+    Type: String
+    Default: !Sub petbuttons-${AWS::AccountId}
+  PetButtonLogStreamGroupName:
+    Description: Email address of the created user
+    Type: String
+    Default: PetButtons
+  ButtonLogStreamName:
+    Description: Email address of the created user
+    Type: String
+    Default: ButtonLogs
+  ErrorLogStreamName:
+    Description: Email address of the created user
+    Type: String
+    Default: ErrorLogs

@@ -1,33 +1,16 @@
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
-
+import { configureResponse, readS3File } from "./util.mjs";
 const client = new S3Client({});
 
-let bucket_name = process.env.BUCKET_NAME;
-// let log_id = aws.util.uuid.v4();
+let bucket_name = process.env.CONFIGBUCKET_BUCKET_NAME;
+let settings_filename = process.env.SETTINGS_FILE_NAME;
 
 export const SettingsPut = async (event) => {
-  return { statusCode: 200, body: {} };
+  return configureResponse(200, {});
 };
 export const SettingsGet = async (event) => {
   console.log(event);
-  const cmd = new GetObjectCommand({
-    Bucket: bucket_name,
-    Key: "settings.conf",
-  });
+  let log_id = event.requestContext.requestId;
 
-  try {
-    return { statusCode: 200, body: {} };
-  } catch (err) {
-    console.error(err);
-    return {
-      statusCode: 500,
-      body: {
-        error_message:
-          "Something wrong has happend. Please consult your error logs.",
-        log_id: "",
-      },
-    };
-  }
-
-  return { statusCode: 200, body: {} };
+  return readS3File(bucket_name, settings_filename, log_id);
 };
